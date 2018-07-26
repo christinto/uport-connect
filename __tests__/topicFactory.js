@@ -8,6 +8,8 @@ describe("TopicFactory", function() {
   jest.setTimeout(10000);
 
   describe("On desktop", function() {
+    beforeAll(() => {});
+
     beforeEach(function() {
       topicFactory = TopicFactory(false, 500);
     });

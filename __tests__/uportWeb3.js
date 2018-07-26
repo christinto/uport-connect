@@ -1,18 +1,28 @@
-import { expect } from "chai";
 import Web3 from "web3";
 import { Connect } from "../src/index";
 
 import Autosigner from "../utils/autosigner";
 import testData from "./testData.json";
-// import ganache from 'ganache-cli'
+import ganache from "ganache-cli";
 
 const addr1 = "0x9d00733ae37f34cdebe443e5cda8e9721fffa092";
 
 describe("uportWeb3 integration tests", function() {
   jest.setTimeout(30000);
 
+  let server;
   let autosigner, status, vanillaWeb3, web3;
   const coolStatus = "Writing some tests!";
+
+  beforeAll(() => {
+    server = ganache.server();
+    server.listen({ port: 7555, default_balance_ether: 100000 }, function(
+      err,
+      blockchain
+    ) {
+      console.log("connected to ganache-cli server");
+    });
+  });
 
   beforeEach(done => {
     // global.navigator = {}
@@ -74,7 +84,9 @@ describe("uportWeb3 integration tests", function() {
                   provider: testrpcProv,
                   uriHandler: autosigner.openQr.bind(autosigner)
                 });
+
                 web3 = uport.getWeb3();
+                console.log("web3 is defined!");
                 status = web3.eth
                   .contract(testData.statusContractAbiData)
                   .at(contract.address);
@@ -89,16 +101,16 @@ describe("uportWeb3 integration tests", function() {
 
   it("getCoinbase", done => {
     web3.eth.getCoinbase((err, address) => {
-      expect(err).to.be.null;
-      expect(address).to.equal(autosigner.address);
+      expect(err).toBeNull();
+      expect(address).toEqual(autosigner.address);
       done();
     });
   });
 
   it("getAccounts", done => {
     web3.eth.getAccounts((err, addressList) => {
-      expect(err).to.be.null;
-      expect(addressList).to.deep.equal([autosigner.address]);
+      expect(err).toBeNull();
+      expect(addressList).toEqual([autosigner.address]);
       done();
     });
   });
@@ -107,11 +119,11 @@ describe("uportWeb3 integration tests", function() {
     web3.eth.sendTransaction(
       { value: web3.toWei(2), to: addr1 },
       (err, txHash) => {
-        expect(err).to.be.null;
-        expect(txHash).to.be;
+        expect(err).toBeNull();
+        expect(txHash).toBeDefined();
         web3.eth.getBalance(addr1, (err, balance) => {
-          expect(err).to.be.null;
-          expect(balance.toString()).to.equal(web3.toWei(2));
+          expect(err).toBeNull();
+          expect(balance.toString()).toEqual(web3.toWei(2));
           done();
         });
       }
@@ -120,18 +132,18 @@ describe("uportWeb3 integration tests", function() {
 
   it("use contract", done => {
     status.updateStatus(coolStatus, (err, res) => {
-      expect(err).to.be.null;
+      expect(err).toBeNull();
       if (err) {
         throw new Error(
           `Expected updateStatus to not return error: ${err.message}`
         );
       }
-      expect(res).to.be;
+      expect(res).toBeDefined();
       web3.eth.getTransactionReceipt(res, (err, tx) => {
-        expect(tx.blockNumber).to.be;
+        expect(tx.blockNumber).toBeDefined();
         status.getStatus.call(autosigner.address, (err, myStatus) => {
-          expect(err).to.be.null;
-          expect(myStatus).to.be.equal(coolStatus);
+          expect(err).toBeNull();
+          expect(myStatus).toEqual(coolStatus);
           done();
         });
       });
@@ -145,8 +157,8 @@ describe("uportWeb3 integration tests", function() {
         autosigner.address,
         "latest",
         (error, balance) => {
-          expect(error).to.be.null;
-          expect(balance).to.be.greaterThan(0);
+          expect(error).toBeNull();
+          expect(parseInt(balance, 10)).toBeGreaterThan(0);
         }
       )
     );
@@ -155,15 +167,15 @@ describe("uportWeb3 integration tests", function() {
         autosigner.address,
         "latest",
         (error, balance) => {
-          expect(error).to.be.null;
-          expect(balance).to.be.greaterThan(0);
+          expect(error).toBeNull();
+          expect(balance).toBeGreaterThan(0);
         }
       )
     );
     batch.add(
       status.getStatus.request(autosigner.address, (error, myStatus) => {
-        expect(error).to.be.null;
-        expect(myStatus).to.be.equal(coolStatus);
+        expect(error).toBeNull();
+        expect(myStatus).toEqual(coolStatus);
       })
     );
     batch.execute();
@@ -171,9 +183,13 @@ describe("uportWeb3 integration tests", function() {
   });
 
   it("does not handle sync calls", done => {
-    expect(() => web3.eth.getBalance(autosigner.address)).to.throw(
+    expect(() => web3.eth.getBalance(autosigner.address)).toThrow(
       "Uport Web3 SubProvider does not support synchronous requests."
     );
     done();
+  });
+
+  afterAll(() => {
+    server.close();
   });
 });
