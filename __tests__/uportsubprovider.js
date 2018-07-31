@@ -46,14 +46,6 @@ const failingSendTransaction = txparams => {
 };
 
 describe("UportSubprovider", () => {
-  let server;
-  beforeAll(() => {
-    server = ganache.server();
-    server.listen({ port: 8545 }, function(err, blockchain) {
-      console.log("connected to ganache-cli server");
-    });
-  });
-
   describe("getAddress", () => {
     //TODO
     it("Use connect to get address first time", done => {
@@ -190,8 +182,5 @@ describe("UportSubprovider", () => {
         done();
       });
     });
-  });
-  afterAll(() => {
-    server.close();
   });
 });

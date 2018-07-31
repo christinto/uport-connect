@@ -10,19 +10,8 @@ const addr1 = "0x9d00733ae37f34cdebe443e5cda8e9721fffa092";
 describe("uportWeb3 integration tests", function() {
   jest.setTimeout(30000);
 
-  let server;
   let autosigner, status, vanillaWeb3, web3;
   const coolStatus = "Writing some tests!";
-
-  beforeAll(() => {
-    server = ganache.server();
-    server.listen({ port: 7555, default_balance_ether: 100000 }, function(
-      err,
-      blockchain
-    ) {
-      console.log("connected to ganache-cli server");
-    });
-  });
 
   beforeEach(done => {
     // global.navigator = {}
@@ -187,9 +176,5 @@ describe("uportWeb3 integration tests", function() {
       "Uport Web3 SubProvider does not support synchronous requests."
     );
     done();
-  });
-
-  afterAll(() => {
-    server.close();
   });
 });

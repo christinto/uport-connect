@@ -68,14 +68,6 @@ const errorTopic = () => {
 };
 
 describe("ConnectCore", () => {
-  let server;
-  beforeAll(() => {
-    server = ganache.server();
-    server.listen({ port: 8545 }, function(err, blockchain) {
-      console.log("connected to ganache-cli server");
-    });
-  });
-
   describe("config", () => {
     it("defaults", () => {
       const uport = new ConnectCore("test app");
@@ -1041,8 +1033,5 @@ describe("ConnectCore", () => {
       const tokenMNID = uportMNID.contract(miniTokenABI).at(contractAddress);
       tokenMNID.transfer("0x3b2631d8e15b145fd2bf99fc5f98346aecdc394c", 12312);
     });
-  });
-  afterAll(() => {
-    server.close();
   });
 });

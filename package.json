@@ -12,7 +12,7 @@
     "build-dist-prod": "./node_modules/.bin/webpack --config webpack.prod-config.js",
     "watch": "./node_modules/.bin/webpack --config webpack.config.js -w",
     "testrpc": "./node_modules/.bin/testrpc",
-    "test": "jest --runInBand --browser",
+    "test": "jest --runInBand --browser --detectOpenHandles",
     "autotest": "./node_modules/.bin/supervisor -q -n exit -x ./node_modules/.bin/mocha -- --reporter spec",
     "karma-watch": "node karmawrapper start test/karma.conf.js --browsers Chrome",
     "karma": "node karmawrapper start test/karma.conf.js --single-run --browsers Chrome",
